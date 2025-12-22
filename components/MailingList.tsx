@@ -25,21 +25,17 @@ export default function MailingList() {
     return (
         <section className="relative w-full py-32 overflow-hidden flex items-center justify-center">
             {/* Video Background */}
-            <div className="absolute inset-0 z-0">
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover opacity-60"
-                >
-                    <source src="https://videos.pexels.com/video-files/2061386/2061386-uhd_2560_1440_30fps.mp4" type="video/mp4" />
-                </video>
+            {/* Cinematic Background */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                <div
+                    className="absolute inset-0 w-full h-full bg-cover bg-center animate-pan-camera opacity-60"
+                    style={{ backgroundImage: "url('/mailing-list-bg.png')" }}
+                />
                 <div className="absolute inset-0 bg-mw-black/60" />
             </div>
 
             <div className="relative z-10 w-full max-w-6xl px-4 text-center">
-                <h2 className="mb-12 text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-2xl font-saira">
+                <h2 className="mb-12 text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-2xl font-sans">
                     Join Big Loud's Mailing List
                 </h2>
 
