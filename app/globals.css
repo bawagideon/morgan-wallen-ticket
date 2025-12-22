@@ -9,8 +9,7 @@
   --color-mw-white: #fafafa;
   --color-mw-grey: #a1a1aa;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-saira), system-ui, sans-serif;
 }
 
 :root {
@@ -21,6 +20,6 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }

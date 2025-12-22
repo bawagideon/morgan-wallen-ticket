@@ -102,9 +102,10 @@ export default function MeetAndGreetPage() {
                             <select
                                 name="state"
                                 required
+                                defaultValue=""
                                 className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none appearance-none"
                             >
-                                <option value="" disabled selected>Select a State</option>
+                                <option value="" disabled>Select a State</option>
                                 <option value="TN">Tennessee</option>
                                 <option value="IN">Indiana</option>
                                 <option value="MS">Mississippi</option>
