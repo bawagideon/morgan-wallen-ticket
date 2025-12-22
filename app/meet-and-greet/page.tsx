@@ -1,22 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { registerForMeetAndGreet } from "../actions";
 import { Home } from "lucide-react";
 import Link from "next/link";
 
+type Show = {
+    id: string;
+    venue: string;
+    city: string;
+    state: string;
+    date: string;
+};
+
 export default function MeetAndGreetPage() {
     const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+    const [shows, setShows] = useState<Show[]>([]);
+    const [loadingShows, setLoadingShows] = useState(true);
+
+    useEffect(() => {
+        const fetchShows = async () => {
+            try {
+                const res = await fetch("/api/shows");
+                const data = await res.json();
+                if (data.shows) {
+                    setShows(data.shows);
+                }
+            } catch (error) {
+                console.error("Failed to fetch shows:", error);
+            } finally {
+                setLoadingShows(false);
+            }
+        };
+        fetchShows();
+    }, []);
 
     async function handleSubmit(formData: FormData) {
         setStatus("submitting");
         const result = await registerForMeetAndGreet(formData);
-        if (result.success) {
-            setStatus("success");
+        if (result.success && result.url) {
+            window.location.href = result.url;
         } else {
+            console.error(result.error);
             setStatus("error");
         }
     }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+        });
+    };
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center p-4">
@@ -42,91 +78,98 @@ export default function MeetAndGreetPage() {
                     </p>
                 </div>
 
-                {status === "success" ? (
-                    <div className="text-center py-12">
-                        <h3 className="text-2xl font-bold text-white mb-4">Registration Complete!</h3>
-                        <p className="text-gray-400 mb-8">We'll be in touch with selection details shortly.</p>
-                        <Link
-                            href="/"
-                            className="inline-block bg-mw-amber text-black font-bold uppercase py-3 px-8 hover:bg-white transition-colors"
-                        >
-                            Return Home
-                        </Link>
-                    </div>
-                ) : (
-                    <form action={handleSubmit} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Full Name</label>
-                                <input
-                                    name="name"
-                                    required
-                                    className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
-                                    placeholder="Create Wallen"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Email Address</label>
-                                <input
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
-                                    placeholder="email@example.com"
-                                />
-                            </div>
-                        </div>
-
+                <form action={handleSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Select Tier</label>
-                            <div className="grid grid-cols-2 gap-4">
-                                <label className="cursor-pointer group">
-                                    <input type="radio" name="tier" value="Normal" className="peer hidden" defaultChecked />
-                                    <div className="border border-mw-zinc p-4 peer-checked:border-mw-amber peer-checked:bg-mw-amber/10 transition-all text-center">
-                                        <span className="block font-bold text-white uppercase mb-1">Normal</span>
-                                        <span className="text-sm text-gray-400 group-hover:text-white">$150 - Photo Op</span>
-                                    </div>
-                                </label>
-                                <label className="cursor-pointer group">
-                                    <input type="radio" name="tier" value="Basic" className="peer hidden" />
-                                    <div className="border border-mw-zinc p-4 peer-checked:border-mw-amber peer-checked:bg-mw-amber/10 transition-all text-center">
-                                        <span className="block font-bold text-white uppercase mb-1">Basic</span>
-                                        <span className="text-sm text-gray-400 group-hover:text-white">$75 - Signed Poster</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Location Preference</label>
-                            <select
-                                name="state"
+                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Full Name</label>
+                            <input
+                                name="name"
                                 required
-                                defaultValue=""
-                                className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none appearance-none"
-                            >
-                                <option value="" disabled>Select a State</option>
-                                <option value="TN">Tennessee</option>
-                                <option value="IN">Indiana</option>
-                                <option value="MS">Mississippi</option>
-                                <option value="NJ">New Jersey</option>
-                                <option value="IL">Illinois</option>
-                            </select>
+                                className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
+                                placeholder="Create Wallen"
+                            />
                         </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Email Address</label>
+                            <input
+                                name="email"
+                                type="email"
+                                required
+                                className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
+                                placeholder="email@example.com"
+                            />
+                        </div>
+                    </div>
 
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Phone Number</label>
+                            <input
+                                name="phone"
+                                type="tel"
+                                required
+                                className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
+                                placeholder="(555) 555-5555"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Date of Birth</label>
+                            <input
+                                name="dob"
+                                type="date"
+                                required
+                                className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Instagram Handle <span className="text-gray-600 normal-case">(Optional)</span></label>
+                        <input
+                            name="instagram"
+                            className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none transition-colors"
+                            placeholder="@morganwallen"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-mw-grey tracking-wider">Select Show</label>
+                        <select
+                            name="show_id"
+                            required
+                            defaultValue=""
+                            disabled={loadingShows}
+                            className="w-full bg-black/50 border border-mw-zinc p-4 text-white focus:border-mw-amber focus:outline-none appearance-none"
+                        >
+                            <option value="" disabled>
+                                {loadingShows ? "Loading shows..." : "Select a Show"}
+                            </option>
+                            {shows.map((show) => (
+                                <option key={show.id} value={show.id}>
+                                    {formatDate(show.date)} - {show.city}, {show.state} @ {show.venue}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="pt-4">
+                        <div className="flex justify-between items-center mb-4 border-b border-mw-zinc pb-4">
+                            <span className="text-white font-bold uppercase">Total</span>
+                            <span className="text-2xl text-mw-amber font-mono font-bold">$150.00</span>
+                        </div>
                         <button
                             type="submit"
                             disabled={status === "submitting"}
                             className="w-full bg-white text-black font-extrabold uppercase py-4 tracking-widest hover:bg-mw-amber hover:text-white transition-all disabled:opacity-50"
                         >
-                            {status === "submitting" ? "Registering..." : "Register Now"}
+                            {status === "submitting" ? "Processing..." : "Pay & Register"}
                         </button>
+                    </div>
 
-                        {status === "error" && (
-                            <p className="text-center text-red-500 font-bold text-sm">Something went wrong. Please try again.</p>
-                        )}
-                    </form>
-                )}
+                    {status === "error" && (
+                        <p className="text-center text-red-500 font-bold text-sm">Something went wrong. Please try again.</p>
+                    )}
+                </form>
             </div>
         </div>
     );
