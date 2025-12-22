@@ -4,7 +4,7 @@ import { X, Minus, Plus, AlertCircle, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type TicketTier = {
+export type TicketTier = {
     id: string;
     name: string;
     price: number;
@@ -12,7 +12,7 @@ type TicketTier = {
     status: "available" | "limited" | "sold-out";
 };
 
-const TIERS: TicketTier[] = [
+export const TIERS: TicketTier[] = [
     {
         id: "pit",
         name: "Pit / GA Front",
@@ -48,6 +48,7 @@ export default function TicketModal({
         vip: 0,
         ga: 0,
     });
+    const [loading, setLoading] = useState(false);
 
     const updateQuantity = (id: string, delta: number) => {
         setQuantities((prev) => ({
@@ -60,6 +61,32 @@ export default function TicketModal({
         (acc, tier) => acc + tier.price * (quantities[tier.id] || 0),
         0
     );
+
+    const handleCheckout = async () => {
+        setLoading(true);
+        try {
+            const cart = Object.entries(quantities)
+                .filter(([_, qty]) => qty > 0)
+                .map(([tierId, quantity]) => ({ tierId, quantity }));
+
+            const response = await fetch("/api/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cart }),
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                console.error("No URL returned from checkout");
+            }
+        } catch (error) {
+            console.error("Checkout failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Close on Escape
     useEffect(() => {
@@ -108,10 +135,10 @@ export default function TicketModal({
                                     <div
                                         key={tier.id}
                                         className={`p-4 border ${tier.status === "sold-out"
-                                                ? "border-white/5 bg-white/5 opacity-60"
-                                                : quantities[tier.id] > 0
-                                                    ? "border-mw-amber bg-mw-amber/10"
-                                                    : "border-white/10 bg-white/5"
+                                            ? "border-white/5 bg-white/5 opacity-60"
+                                            : quantities[tier.id] > 0
+                                                ? "border-mw-amber bg-mw-amber/10"
+                                                : "border-white/10 bg-white/5"
                                             } transition-all`}
                                     >
                                         <div className="flex justify-between items-start mb-2">
@@ -167,10 +194,11 @@ export default function TicketModal({
                                     <span className="text-2xl font-bold text-white font-mono">${total}</span>
                                 </div>
                                 <button
-                                    disabled={total === 0}
-                                    className="w-full bg-mw-amber text-white font-bold uppercase py-4 tracking-widest hover:bg-mw-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={handleCheckout}
+                                    disabled={total === 0 || loading}
+                                    className="w-full bg-mw-amber text-white font-bold uppercase py-4 tracking-widest hover:bg-mw-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                                 >
-                                    Checkout
+                                    {loading ? "Processing..." : "Checkout"}
                                 </button>
                             </div>
                         </div>

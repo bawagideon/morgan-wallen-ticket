@@ -1,10 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/db";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
-// const prisma = new PrismaClient(); // Removed local instantiation
+import { supabase } from "@/lib/supabase";
 
 export async function registerForMeetAndGreet(formData: FormData) {
     const name = formData.get("name") as string;
@@ -18,18 +14,22 @@ export async function registerForMeetAndGreet(formData: FormData) {
     }
 
     try {
-        await prisma.meetAndGreetRegistration.create({
-            data: {
+        const { error } = await supabase
+            .from('meet_and_greet_registrations')
+            .insert({
                 name,
                 email,
                 tier,
                 state,
                 city: city || null,
-                preferredDate: new Date(), // Placeholder or from form
-            },
-        });
+                preferred_date: new Date().toISOString(),
+            });
 
-        // In a real app we might redirect or return success
+        if (error) {
+            console.error("Supabase error:", error);
+            throw new Error(error.message);
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Registration failed:", error);
