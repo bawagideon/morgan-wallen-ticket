@@ -1,24 +1,43 @@
+
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-12-15.clover" as any, // Cast to any to avoid strict type mismatch if types are slightly off, but using suggested version.
-});
+// Safe initialization
+const getStripe = () => {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        console.error("Missing STRIPE_SECRET_KEY");
+        return null;
+    }
+    return new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2025-12-15.clover" as any,
+    });
+};
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // MUST use Service Role for checking inventory without RLS issues? Or Anon is fine if reading public?
-    // Using Service Role is safer for server-side logic usually, but let's check if we have it. 
-    // The prompt says "SUPABASE_SERVICE_ROLE_KEY (used in API routes)". I will use logic to check env or fallback? 
-    // Actually, reading inventory is public. But later we might want to lock. 
-    // Let's stick to standard practice. I will use process.env.SUPABASE_SERVICE_ROLE_KEY.
-);
+const getSupabase = () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// If service role not allowed in client bundle, this file is server-only so it matches.
+    if (!url || !key) {
+        console.error("Missing Supabase credentials in Checkout Route");
+        return null;
+    }
+    return createClient(url, key);
+};
 
 export async function POST(request: Request) {
+    console.log("Checkout initiated...");
     try {
+        const stripe = getStripe();
+        if (!stripe) {
+            return NextResponse.json({ error: "Server Configuration Error: Missing Stripe Key" }, { status: 500 });
+        }
+
+        const supabase = getSupabase();
+        if (!supabase) {
+            return NextResponse.json({ error: "Server Configuration Error: Missing DB Keys" }, { status: 500 });
+        }
+
         const { cart } = await request.json();
 
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -48,7 +67,7 @@ export async function POST(request: Request) {
         for (const item of cart) {
             const dbTier = dbTiers.find((t) => t.id === item.tierId);
             if (!dbTier) {
-                throw new Error(`Invalid tier: ${item.tierId}`);
+                throw new Error(`Invalid tier: ${item.tierId} `);
             }
 
             // Inventory Check

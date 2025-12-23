@@ -66,14 +66,27 @@ export default function TicketModal({
                 body: JSON.stringify({ cart }),
             });
 
-            const data = await response.json();
+            let data;
+            const responseText = await response.text();
+
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Failed to parse checkout response:", responseText);
+                alert("Checkout API Error: " + response.status + " " + response.statusText);
+                return;
+            }
+
             if (!response.ok) {
+                console.error("Checkout API Error Payload:", data);
                 alert(data.error || "Checkout failed");
                 return;
             }
 
             if (data.url) {
                 window.location.href = data.url;
+            } else {
+                console.error("No URL returned from checkout");
             }
         } catch (error) {
             console.error("Checkout failed:", error);

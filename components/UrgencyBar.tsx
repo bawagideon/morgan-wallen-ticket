@@ -10,7 +10,7 @@ export default function UrgencyBar() {
         s: 0,
     });
 
-    const [viewers, setViewers] = useState(420);
+    const [viewers, setViewers] = useState<number | null>(null);
 
     useEffect(() => {
         // Randomize initial viewers between 420 and 550
@@ -57,9 +57,11 @@ export default function UrgencyBar() {
             <span className="font-bold uppercase tracking-widest text-xs md:text-sm hidden md:inline">
                 Next Show: Indianapolis, IN
             </span>
-            <span className="font-bold uppercase tracking-widest text-xs md:text-sm text-red-500 animate-pulse">
-                High Demand: {viewers} people viewing
-            </span>
+            {viewers && (
+                <span className="font-bold uppercase tracking-widest text-xs md:text-sm text-red-500 animate-pulse">
+                    High Demand: {viewers} people viewing
+                </span>
+            )}
             <div className="flex gap-4 font-mono font-bold text-lg md:text-xl">
                 <div className="flex flex-col items-center leading-none">
                     <span>{String(timeLeft.d).padStart(2, "0")}</span>
