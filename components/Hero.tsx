@@ -66,13 +66,31 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-mw-black via-mw-black/50 to-transparent" />
       </div>
 
+      {/* Scroll Indicator */}
+      <div className="absolute top-0 left-0 z-50 p-6 md:p-10 w-full flex justify-between items-start">
+        <Link href="/">
+          <Image
+            src="/logo.png"
+            alt="Morgan Wallen Official"
+            width={150}
+            height={60}
+            className="w-32 md:w-48 h-auto object-contain drop-shadow-lg transition-transform hover:scale-105"
+            priority
+          />
+        </Link>
+        {/* Optional: Add "My Tickets" link here for easy access? User didn't ask but good UX. */}
+        <Link href="/my-tickets" className="text-white font-bold uppercase tracking-widest text-xs md:text-sm border border-white/30 px-4 py-2 hover:bg-white/10 transition-colors bg-black/20 backdrop-blur-sm rounded">
+          My Tickets
+        </Link>
+      </div>
+
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4">
-        <h2 className="mb-2 text-xl font-bold tracking-widest text-mw-amber uppercase md:text-2xl">
-          The 2026 Tour
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 mt-16 md:mt-0">
+        <h2 className="mb-4 text-xl font-bold tracking-[0.2em] text-mw-amber uppercase md:text-2xl drop-shadow-md">
+          Still The Problem Tour 2026
         </h2>
-        <h1 className="mb-6 text-5xl font-extrabold uppercase tracking-tighter text-white sm:text-7xl md:text-9xl drop-shadow-xl">
-          One Night <br /> At A Time
+        <h1 className="mb-8 text-5xl font-black uppercase tracking-tighter text-white sm:text-7xl md:text-8xl drop-shadow-2xl leading-[0.9]">
+          Official Tickets
         </h1>
 
         {timeLeft && (

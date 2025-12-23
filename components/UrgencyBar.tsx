@@ -55,7 +55,7 @@ export default function UrgencyBar() {
     return (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-mw-amber text-mw-black py-2 px-4 shadow-lg-up flex items-center justify-center gap-4 md:gap-8">
             <span className="font-bold uppercase tracking-widest text-xs md:text-sm hidden md:inline">
-                Next Show: Indianapolis, IN
+                Next Show: Minneapolis, MN
             </span>
             {viewers && (
                 <span className="font-bold uppercase tracking-widest text-xs md:text-sm text-red-500 animate-pulse">
@@ -83,9 +83,14 @@ export default function UrgencyBar() {
                     <span className="text-[10px] uppercase font-sans opacity-60">Secs</span>
                 </div>
             </div>
-            <button className="bg-mw-black text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-gray-900 transition-colors">
+            <a
+                href="https://bigloud.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-mw-black text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-gray-900 transition-colors"
+            >
                 View Info
-            </button>
+            </a>
         </div>
     );
 }

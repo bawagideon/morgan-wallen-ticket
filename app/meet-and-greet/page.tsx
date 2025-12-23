@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { registerForMeetAndGreet } from "../actions";
-import { Home } from "lucide-react";
+import { CornerUpLeft } from "lucide-react";
 import Link from "next/link";
 
 type Show = {
@@ -65,8 +65,11 @@ export default function MeetAndGreetPage() {
             </div>
 
             <div className="relative z-10 w-full max-w-2xl bg-mw-dark/90 border border-mw-zinc p-8 md:p-12 shadow-2xl">
-                <Link href="/" className="absolute top-4 left-4 text-mw-grey hover:text-mw-amber transition-colors">
-                    <Home size={24} />
+                <Link href="/" className="absolute top-4 left-4 text-mw-grey hover:text-mw-amber transition-colors group">
+                    <div className="flex items-center gap-2">
+                        <CornerUpLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+                        <span className="sr-only">Back to Home</span>
+                    </div>
                 </Link>
 
                 <div className="text-center mb-10">

@@ -56,12 +56,13 @@ export default function TourList({ onOpenModal }: { onOpenModal: () => void }) {
                     <div className="text-center text-mw-grey">Loading tour dates...</div>
                 ) : (
                     <div className="space-y-4">
-                        {shows.map((show) => {
+                        {shows.map((show, index) => {
                             const { month, day } = formatDate(show.date);
                             return (
                                 <div
                                     key={show.id}
-                                    className="group flex flex-col md:flex-row items-center justify-between gap-6 border-b border-mw-zinc bg-mw-dark/50 p-6 transition-all hover:bg-mw-zinc/50 hover:border-mw-amber/50"
+                                    className="group flex flex-col md:flex-row items-center justify-between gap-6 border-b border-mw-zinc bg-mw-dark/50 p-6 transition-all hover:bg-mw-zinc/50 hover:border-mw-amber/50 animate-fade-in"
+                                    style={{ animationDelay: `${index * 100}ms` }}
                                 >
                                     {/* Date */}
                                     <div className="flex w-full md:w-auto flex-row md:flex-col items-center md:items-start gap-4 md:gap-1">
