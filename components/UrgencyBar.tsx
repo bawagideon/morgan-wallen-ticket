@@ -10,35 +10,55 @@ export default function UrgencyBar() {
         s: 0,
     });
 
+    const [viewers, setViewers] = useState(420);
+
     useEffect(() => {
-        // Set target date to 3 days from now for demo
-        const target = new Date();
-        target.setDate(target.getDate() + 3);
+        // Randomize initial viewers between 420 and 550
+        setViewers(Math.floor(Math.random() * (550 - 420 + 1)) + 420);
 
-        const interval = setInterval(() => {
-            const now = new Date();
-            const diff = target.getTime() - now.getTime();
+        const fetchNextShow = async () => {
+            try {
+                const res = await fetch("/api/shows/next");
+                if (!res.ok) return;
 
-            if (diff <= 0) {
-                clearInterval(interval);
-                return;
+                const data = await res.json();
+                if (data.date) {
+                    const showDate = new Date(data.date).getTime();
+
+                    const interval = setInterval(() => {
+                        const now = new Date().getTime();
+                        const distance = showDate - now;
+
+                        if (distance < 0) {
+                            clearInterval(interval);
+                            setTimeLeft({ d: 0, h: 0, m: 0, s: 0 });
+                        } else {
+                            setTimeLeft({
+                                d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                                h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                                m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                                s: Math.floor((distance % (1000 * 60)) / 1000),
+                            });
+                        }
+                    }, 1000);
+
+                    return () => clearInterval(interval);
+                }
+            } catch (error) {
+                console.error("Failed to fetch next show for bar:", error);
             }
+        };
 
-            setTimeLeft({
-                d: Math.floor(diff / (1000 * 60 * 60 * 24)),
-                h: Math.floor((diff / (1000 * 60 * 60)) % 24),
-                m: Math.floor((diff / 1000 / 60) % 60),
-                s: Math.floor((diff / 1000) % 60),
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
+        fetchNextShow();
     }, []);
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-mw-amber text-mw-black py-2 px-4 shadow-lg-up flex items-center justify-center gap-4 md:gap-8">
             <span className="font-bold uppercase tracking-widest text-xs md:text-sm hidden md:inline">
                 Next Show: Indianapolis, IN
+            </span>
+            <span className="font-bold uppercase tracking-widest text-xs md:text-sm text-red-500 animate-pulse">
+                High Demand: {viewers} people viewing
             </span>
             <div className="flex gap-4 font-mono font-bold text-lg md:text-xl">
                 <div className="flex flex-col items-center leading-none">

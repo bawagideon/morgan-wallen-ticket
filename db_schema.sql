@@ -64,3 +64,44 @@ create table mailing_list_subscribers (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+
+-- 5. Ticket Tiers (Inventory)
+create table ticket_tiers (
+  id text primary key, -- 'pit', 'vip', 'ga'
+  name text not null,
+  price integer not null, -- in cents
+  capacity integer not null,
+  sold_count integer default 0,
+  active boolean default true
+);
+
+-- 6. Tickets (Purchases)
+create table tickets (
+  id uuid default uuid_generate_v4() primary key,
+  user_email text not null,
+  tier_id text references ticket_tiers(id) not null,
+  stripe_session_id text,
+  stripe_payment_intent_id text,
+  status text default 'paid',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Seed Data for Tiers
+insert into ticket_tiers (id, name, price, capacity, sold_count)
+values
+  ('pit', 'Pit / GA Front', 35000, 500, 0),
+  ('vip', 'VIP Seated', 27500, 200, 0),
+  ('ga', 'General Admission', 12500, 5000, 0)
+on conflict (id) do nothing;
+
+-- RPC Function for Atomic Increment
+create or replace function increment_tier_sold(row_id text, quantity int)
+returns void
+language plpgsql
+as $$
+begin
+  update ticket_tiers
+  set sold_count = sold_count + quantity
+  where id = row_id;
+end;
+$$;

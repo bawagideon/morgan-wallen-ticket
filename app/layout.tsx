@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Saira_Condensed } from "next/font/google";
 import "./globals.css";
+import UrgencyBar from "@/components/UrgencyBar";
 
 const saira = Saira_Condensed({
   weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -24,6 +25,7 @@ export default function RootLayout({
         className={`${saira.variable} antialiased font-sans`}
       >
         {children}
+        <UrgencyBar />
       </body>
     </html>
   );

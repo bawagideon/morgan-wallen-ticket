@@ -5,7 +5,7 @@ import Hero from "@/components/Hero";
 import TourList from "@/components/TourList";
 import MailingList from "@/components/MailingList";
 import TicketModal from "@/components/TicketModal";
-import UrgencyBar from "@/components/UrgencyBar";
+import FAQ from "@/components/FAQ";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,14 +14,13 @@ export default function Home() {
     <main className="min-h-screen pb-16">
       <Hero />
       <TourList onOpenModal={() => setIsModalOpen(true)} />
+      <FAQ />
       <MailingList />
 
       <TicketModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-
-      <UrgencyBar />
     </main>
   );
 }
